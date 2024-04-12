@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../_lib/prisma";
 
 export const listUserController = async (
     request: Request,
