@@ -9,3 +9,21 @@ export const listUserController = async (
 
     response.send(users);
 };
+
+export const findOneUserController = async (
+    request: Request,
+    response: Response
+) => {
+    const { userId } = request.params;
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+    });
+
+    if (!user) {
+        return response.status(404).send("Not found");
+    }
+
+    response.send(user);
+};
