@@ -27,3 +27,38 @@ export const findOneUserController = async (
 
     response.send(user);
 };
+
+export const createUserController = async (
+    request: Request,
+    response: Response
+) => {
+    const { name, email } = request.body;
+
+    if (!name || !email) {
+        return response.send({
+            error: "Name or email is invalid",
+        });
+    }
+
+    const userEmailAlreadyExists = await prisma.user.findUnique({
+        where: {
+            email,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (userEmailAlreadyExists) {
+        return response.status(400).send("Email already in use");
+    }
+
+    const user = await prisma.user.create({
+        data: {
+            name,
+            email,
+        },
+    });
+
+    response.send(user);
+};
