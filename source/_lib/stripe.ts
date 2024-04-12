@@ -68,6 +68,34 @@ export const handleProcessWebhookCheckout = async (event: {
         },
     });
 };
-export const handleProcessWebhookUpdatedSubscription = (event: {
+export const handleProcessWebhookUpdatedSubscription = async (event: {
     object: Stripe.Subscription;
-}) => {};
+}) => {
+    const stripeSubscriptionId = event.object.id as string;
+    const stripeCustomerId = event.object.customer as string;
+    const stripeSubscriptionStatus = event.object.status;
+
+    const userExists = await prisma.user.findFirst({
+        where: {
+            stripeCustomerId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!userExists) {
+        throw new Error("user of stripeCustomerId not found");
+    }
+
+    await prisma.user.update({
+        where: {
+            id: userExists.id,
+        },
+        data: {
+            stripeCustomerId,
+            stripeSubscriptionId,
+            stripeSubscriptionStatus,
+        },
+    });
+};
