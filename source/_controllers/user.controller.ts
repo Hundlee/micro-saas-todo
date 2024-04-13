@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../_lib/prisma";
+import { createStripeCustomer } from "../_lib/stripe";
 
 export const listUserController = async (
     request: Request,
@@ -53,10 +54,16 @@ export const createUserController = async (
         return response.status(400).send("Email already in use");
     }
 
+    const stripeCustomer = await createStripeCustomer({
+        name,
+        email,
+    });
+
     const user = await prisma.user.create({
         data: {
             name,
             email,
+            stripeCustomerId: stripeCustomer.id,
         },
     });
 
