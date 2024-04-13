@@ -5,6 +5,7 @@ import {
     handleProcessWebhookUpdatedSubscription,
     stripe,
 } from "../_lib/stripe";
+import Stripe from "stripe";
 
 export const stripeWebhookController = async (
     request: Request,
@@ -12,7 +13,7 @@ export const stripeWebhookController = async (
 ) => {
     let event = request.body;
 
-    if (!config.stripe.secretKey) {
+    if (!config.stripe.webhookSecret) {
         console.error("STRIPE_WEBHOOK_SECRET_KEY is not set");
         return response.sendStatus(400);
     }
@@ -20,10 +21,12 @@ export const stripeWebhookController = async (
     const signature = request.headers["stripe-signature"] as string;
 
     try {
-        event = stripe.webhooks.constructEvent(
+        event = await stripe.webhooks.constructEventAsync(
             request.body,
             signature,
-            config.stripe.secretKey
+            config.stripe.webhookSecret,
+            undefined,
+            Stripe.createSubtleCryptoProvider()
         );
     } catch (error) {
         const errorMessage =
