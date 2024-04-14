@@ -19,7 +19,10 @@ export const createStripeCustomer = async (input: {
     let customer = await getStripeCustomerByEmail(input.email);
     if (customer) return customer;
 
-    return stripe.customers.create({ email: input.email, name: input.name });
+    return stripe.customers.create({
+        email: input.email,
+        name: input.name,
+    });
 };
 
 export const createCheckoutSession = async (
