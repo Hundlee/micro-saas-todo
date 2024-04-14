@@ -38,18 +38,20 @@ export const stripeWebhookController = async (
     try {
         switch (event.type) {
             case "checkout.session.completed":
-                await handleProcessWebhookCheckout(event);
+                await handleProcessWebhookCheckout(event.data);
                 break;
-            case "checkout.session.created":
-            case "checkout.session.updated":
-                await handleProcessWebhookUpdatedSubscription(event);
+            case "customer.subscription.created":
+            case "customer.subscription.updated":
+                await handleProcessWebhookUpdatedSubscription(event.data);
                 break;
 
             default:
                 console.log(`Unhandled event type ${event.type}`);
         }
 
-        return response.json({ received: true });
+        return response.json({
+            received: true,
+        });
     } catch (error) {
         const errorMessage =
             error instanceof Error ? error.message : "Unknown error";
